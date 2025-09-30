@@ -1,0 +1,30 @@
+{
+  "name": "primetrade.ai_assignment",
+  "version": "1.0.0",
+  "description": "Primetrade.ai Frontend Internship Assignment ",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "npx nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Santoshb22/primetrade.ai_assignment.git"
+  },
+  "author": "Santosh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Santoshb22/primetrade.ai_assignment/issues"
+  },
+  "homepage": "https://github.com/Santoshb22/primetrade.ai_assignment#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.18.3"
+  }
+}
