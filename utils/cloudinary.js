@@ -1,4 +1,4 @@
-const {v2: cloudinary} = require('cloudinary');
+const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
 
 cloudinary.config({
@@ -9,7 +9,7 @@ cloudinary.config({
 
 const uploadtoCloudinary = async (filePath) => {
     try {
-        if(!localFilePath) return null;
+        if(!filePath) return null;
 
         const result = await cloudinary.uploader.upload(filePath, {
             resource_type: "image",
