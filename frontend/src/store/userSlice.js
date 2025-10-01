@@ -1,22 +1,36 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// Load from localStorage if available
+const storedUser = JSON.parse(localStorage.getItem("userState"));
+
 const userSlice = createSlice({
   name: "user",
-  initialState: {     
+  initialState: storedUser || {     
     authStatus: false,  
     userInfo: null,
+    token: null,
   },    
-    reducers: {
-        setUser: (state, action) => {
-            state.userInfo = action.payload.userInfo;
-        },
-        clearUser: (state) => {
-            state.userInfo = null;
-        },
-        toggleAuth: (state, action) => {
-            state.authStatus = action.payload;
-        }       
+  reducers: {
+    setUser: (state, action) => {
+      state.userInfo = action.payload.userInfo;
+      state.token = action.payload.token;
+      state.authStatus = true;
+
+      // save to localStorage
+      localStorage.setItem("userState", JSON.stringify(state));
     },
+    clearUser: (state) => {
+      state.userInfo = null;
+      state.token = null;
+      state.authStatus = false;
+
+      localStorage.removeItem("userState");
+    },
+    toggleAuth: (state, action) => {
+      state.authStatus = action.payload;
+      localStorage.setItem("userState", JSON.stringify(state));
+    },       
+  },
 }); 
 
 export const { setUser, clearUser, toggleAuth } = userSlice.actions;

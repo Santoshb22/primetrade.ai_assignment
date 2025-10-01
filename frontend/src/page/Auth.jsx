@@ -73,7 +73,7 @@ const Auth = () => {
       console.log("Response:", data);
 
       if (res.ok) {
-        dispatch(setUser({ userInfo: data.user }));
+          dispatch(setUser({ userInfo: data.user, token: data.accessToken }));
         if (isLogin) {
           dispatch(toggleAuth(true));
           navigate("/dashboard");
