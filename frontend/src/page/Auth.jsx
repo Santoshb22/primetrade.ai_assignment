@@ -1,7 +1,13 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setUser, toggleAuth } from "../store/userSlice";
+import { useNavigate } from "react-router";
+import { validateLogin, validateRegister } from "../utils/authValidate";
+
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -9,6 +15,9 @@ const Auth = () => {
     password: "",
     avatar: null,
   });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const loginAPI = `${import.meta.env.VITE_BASE_API}/users/login`;
   const registerAPI = `${import.meta.env.VITE_BASE_API}/users/register`;
@@ -24,15 +33,26 @@ const Auth = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const validationErrors = isLogin
+      ? validateLogin(formData)
+      : validateRegister(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    } else {
+      setErrors({});
+    }
+
     try {
       const url = isLogin ? loginAPI : registerAPI;
       let body;
 
       if (isLogin) {
         body = {
-            username: formData.username.includes("@") ? undefined : formData.username,
-            email: formData.username.includes("@") ? formData.username : undefined,
-            password: formData.password,
+          username: formData.username.includes("@") ? undefined : formData.username,
+          email: formData.username.includes("@") ? formData.username : undefined,
+          password: formData.password,
         };
       } else {
         body = new FormData();
@@ -46,19 +66,32 @@ const Auth = () => {
       const res = await fetch(url, {
         method: "POST",
         body: isLogin ? JSON.stringify(body) : body,
-        headers: isLogin
-          ? { "Content-Type": "application/json" }
-          : undefined, 
+        headers: isLogin ? { "Content-Type": "application/json" } : undefined,
       });
 
       const data = await res.json();
       console.log("Response:", data);
 
       if (res.ok) {
-        alert(isLogin ? "Login successful 🎉" : "Registered successfully 🎉");
+        dispatch(setUser({ userInfo: data.user }));
+        if (isLogin) {
+          dispatch(toggleAuth(true));
+          navigate("/dashboard");
+        } else if(!isLogin){
+          setIsLogin(true);
+        }
+        alert(isLogin ? "Login successful 🎉" : "Registered successfully, PLEASE LOGIN");
       } else {
         alert(data.message || "Something went wrong");
       }
+
+      setFormData({
+        name: "",
+        username: "",
+        email: "",
+        password: "",
+        avatar: null,
+      }); 
     } catch (err) {
       console.error(err);
       alert("Something went wrong!");
@@ -75,68 +108,83 @@ const Auth = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <>
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={formData.username}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-              <input
-                type="file"
-                name="avatar"
-                accept="image/*"
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg cursor-pointer"
-              />
+              <div>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg"
+                />
+                {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg"
+                />
+                {errors.username && <p className="text-red-600 text-sm">{errors.username}</p>}
+              </div>
+
+              <div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg"
+                />
+                {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
+              </div>
+
+              <div>
+                <input
+                  type="file"
+                  name="avatar"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded-lg cursor-pointer"
+                />
+                {errors.avatar && <p className="text-red-600 text-sm">{errors.avatar}</p>}
+              </div>
             </>
           )}
 
           {isLogin && (
-            <input
-              type="text"
-              name="username"
-              placeholder="Username or Email"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            />
+            <div>
+              <input
+                type="text"
+                name="username"
+                placeholder="Username or Email"
+                value={formData.username}
+                onChange={handleChange}
+                className="w-full p-3 border rounded-lg"
+              />
+              {errors.username && <p className="text-red-600 text-sm">{errors.username}</p>}
+            </div>
           )}
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-
+          <div>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg"
+            />
+            {errors.password && <p className="text-red-600 text-sm">{errors.password}</p>}
+          </div>  
           <button
             type="submit"
-            className="w-full py-3 bg-indigo-900 text-white rounded-lg font-semibold hover:bg-indigo-800 transition duration-300"
+            className="w-full py-3 bg-indigo-900 text-white rounded-lg font-semibold hover:bg-indigo-800 transition"
           >
             {isLogin ? "Login" : "Register"}
           </button>
