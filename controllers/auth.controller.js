@@ -1,12 +1,13 @@
 const User = require("../models/user.model");
-const { uploadtoCloudinary } = require("../utils/cloudinary");  
+const { uploadtoCloudinary, deleteFromCloudinary } = require("../utils/cloudinary");  
+const jwt = require("jsonwebtoken");
 
 const generateAccessAndRefreshTokens = async (userId) => {
-  const user = await User.findById(userId);  // ✅ fix typo
+  const user = await User.findById(userId); 
   const accessToken = await user.generateAccessToken();
   const refreshToken = await user.generateRefreshToken();
 
-  user.refreshToken = refreshToken; // ✅ fix
+  user.refreshToken = refreshToken; 
   await user.save({ validateBeforeSave: false });
 
   return { accessToken, refreshToken };
@@ -15,9 +16,8 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const register = async (req, res) => {
   try {
     const { name, username, email, password } = req.body;
-    const avatarLocalpath = req?.file?.path;
+    const avatarLocalPath = req?.file?.path; 
 
-    // validate required fields
     if ([name, username, email, password].some(field => !field || field.trim() === "")) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -34,7 +34,7 @@ const register = async (req, res) => {
     let avatar = { cloudinaryAvatarUrl: "", cloudinaryAvatarPublicId: "" };
 
     if (req.file) {
-      const uploadResult = await uploadtoCloudinary(avatarLocalpath);
+      const uploadResult = await uploadtoCloudinary(avatarLocalPath); 
       if (uploadResult) {
         avatar.cloudinaryAvatarUrl = uploadResult.url;
         avatar.cloudinaryAvatarPublicId = uploadResult.public_id;
@@ -78,18 +78,18 @@ const login = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const isPasswordValid = await user.isPasswordMatch(password); // ✅ fix
+    const isPasswordValid = await user.isPasswordMatch(password); 
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    const { refreshToken, accessToken } = await generateAccessAndRefreshTokens(user._id);
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id); 
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const cookieOptions = {
       httpOnly: true,
-      secure: true,  // set to false in dev if needed
+      secure: true,  
     };
 
     return res.status(200)
@@ -107,4 +107,112 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const logout = async (req, res) => {
+  try {
+    await User.findByIdAndUpdate( 
+      req.user._id, 
+      {
+        $unset: {
+          refreshToken: 1,
+        }
+      },
+      {
+        new: true
+      }
+    )
+
+    const options = {
+      httpOnly: true,
+      secure: true
+    }
+
+    return res.status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json({ message: "User logged out" })
+  } catch (error) {
+    return res.status(500).json({ message: "Log out failed" })
+  }
+}
+
+const generateNewRefreshToken = async (req, res) => {
+  try {
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+    if (!incomingRefreshToken) {
+      return res.status(401).json({ message: "Unauthorized request" });
+    }
+
+    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(decodedToken?.id); 
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
+
+    if (user.refreshToken !== incomingRefreshToken) {
+      return res.status(401).json({ message: "Refresh token is expired or used" });
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id); 
+
+    const options = {
+      httpOnly: true,
+      secure: true
+    }
+
+    return res.status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json({ message: "Access token refreshed" });
+  } catch (error) {
+    return res.status(401).json({ message: error.message || "Invalid refresh token" });
+  }
+}
+
+const editAvatar = async (req, res) => {
+  try {
+    const avatarLocalPath = req.file?.path;
+
+    if (!avatarLocalPath) {
+      return res.status(400).json({ message: "Avatar is required" });
+    }
+
+    const cloudinaryResponse = await uploadtoCloudinary(avatarLocalPath); 
+    if (!cloudinaryResponse) {
+      return res.status(400).json({ message: "Failed to upload new avatar" });
+    }
+
+    const avatar = {
+      cloudinaryAvatarUrl: cloudinaryResponse?.secure_url || "",
+      cloudinaryAvatarPublicId: cloudinaryResponse?.public_id || "",
+    };
+  
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.avatar?.cloudinaryAvatarPublicId) {
+      await deleteFromCloudinary(user.avatar?.cloudinaryAvatarPublicId);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user?._id,
+      {
+        $set: {
+          avatar
+        }
+      },
+      {
+        new: true
+      }
+    ).select("-password -refreshToken");
+
+    return res.status(200).json({ message: "Avatar updated successfully", user: updatedUser });
+
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+}
+
+module.exports = { register, login, logout, generateNewRefreshToken, editAvatar };
