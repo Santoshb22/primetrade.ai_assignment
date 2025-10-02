@@ -62,7 +62,7 @@ const Profile = () => {
           username: data.user?.username || ''
         });
 
-        dispatch(setUser({ userInfo: data.user, token: data.accessToken }));
+        dispatch(setUser({ userInfo: data.user, token: token }));
       } catch (error) {
         console.error('Error fetching profile:', error);      } 
     }

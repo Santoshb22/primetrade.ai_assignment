@@ -10,6 +10,10 @@ const userSlice = createSlice({
     token: null,
   },    
   reducers: {
+    toggleAuth: (state, action) => {
+      state.authStatus = action.payload;
+      localStorage.setItem("userState", JSON.stringify(state));
+    },       
     setUser: (state, action) => {
       state.userInfo = action.payload.userInfo;
       state.token = action.payload.token;
@@ -24,10 +28,6 @@ const userSlice = createSlice({
 
       localStorage.removeItem("userState");
     },
-    toggleAuth: (state, action) => {
-      state.authStatus = action.payload;
-      localStorage.setItem("userState", JSON.stringify(state));
-    },       
   },
 }); 
 
