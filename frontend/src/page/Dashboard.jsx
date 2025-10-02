@@ -5,7 +5,7 @@ import TaskModal from "../component/TaskModal";
 
 const Dashboard = () => {
   const [allTask, setAllTask] = useState([]);
-  const token = useSelector((state) => state.user.token);
+  const token = useSelector((state) => state.user?.token);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
@@ -28,7 +28,7 @@ const Dashboard = () => {
     };
 
     fetchTasks();
-  }, [token]);
+  }, [token, isModalOpen]);
 
   const handleDelete = async (taskId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete?");

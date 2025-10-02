@@ -4,10 +4,10 @@ import Auth from './page/Auth';
 import Dashboard from './page/Dashboard';
 import Header from './component/Header';
 import Profile from './page/Profile';
+import { useSelector } from 'react-redux';
 
 const App = () => {
-  const authStatus = JSON.parse(localStorage.getItem("userState"))?.authStatus;
-
+  const authStatus = useSelector((state) => state.user?.authStatus);
   return (
     <>
       <Header />

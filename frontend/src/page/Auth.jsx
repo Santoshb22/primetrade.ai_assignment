@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setUser, toggleAuth } from "../store/userSlice";
-import { useNavigate } from "react-router";
 import { validateLogin, validateRegister } from "../utils/authValidate";
+import { useNavigate } from "react-router-dom";
 
 
 const Auth = () => {

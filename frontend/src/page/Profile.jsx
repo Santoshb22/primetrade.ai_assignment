@@ -38,7 +38,6 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert(error.message);
     }
     setIsEditProfile(false);
   }
@@ -65,9 +64,7 @@ const Profile = () => {
 
         dispatch(setUser({ userInfo: data.user, token: data.accessToken }));
       } catch (error) {
-        console.error('Error fetching profile:', error);
-        alert(error.message);
-      } 
+        console.error('Error fetching profile:', error);      } 
     }
       fetchProfile();
   }, [isEditProfile])
@@ -149,8 +146,8 @@ const Profile = () => {
               alt="Profile"
             />
           </div>
-          <p>{profileData?.username}</p>
-          <p>{profileData?.email}</p>
+          <p className='font-semibold'>{profileData?.username}</p>
+          <p className='font-semibold'>{profileData?.email}</p>
         </div>
       )}
     </div>
