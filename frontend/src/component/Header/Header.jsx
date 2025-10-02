@@ -54,7 +54,7 @@ const Header = () => {
 
       {
         userName && (
-      <nav className="flex gap-6 hidden md:block items-center">
+      <nav className="md:flex gap-6 hidden md:block items-center">
         <button
           onClick={() => navigate("/dashboard")}
           className="text-indigo-700 font-medium hover:underline"
