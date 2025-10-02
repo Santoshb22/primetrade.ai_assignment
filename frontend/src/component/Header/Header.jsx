@@ -1,13 +1,16 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { clearUser } from "../store/userSlice";
+import { clearUser } from "../../store/userSlice";
 import { useNavigate } from "react-router";
+import Sidebar from "./Sidebar";
 
 const Header = () => {
   const userName = useSelector((store) => store?.user?.userInfo?.username);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user?.token);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const authStatus = useSelector((store) => store.user?.authStatus);
 
   const handleLogout = async () => {
     try {
@@ -18,22 +21,23 @@ const Header = () => {
 
       dispatch(clearUser());
       navigate("/");
+      setIsSidebarOpen(false);
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
   return (
-    <header className="flex justify-between items-center p-4 bg-indigo-100 shadow-md">
+    <header className="relative flex justify-between items-center p-4 bg-indigo-100 shadow-md">
       <div
         className="flex gap-2 items-center cursor-pointer"
       >
-        <h1 className="text-2xl font-bold text-indigo-700">PrimeTrade</h1>
+        <h1 className="md:text-2xl font-bold text-indigo-700">PrimeTrade</h1>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="w-6 h-6 text-indigo-600"
+          className="hidden md:block w-6 h-6 text-indigo-600"
         >
           <path
             fillRule="evenodd"
@@ -50,8 +54,7 @@ const Header = () => {
 
       {
         userName && (
-            
-      <nav className="flex gap-6 items-center">
+      <nav className="flex gap-6 hidden md:block items-center">
         <button
           onClick={() => navigate("/dashboard")}
           className="text-indigo-700 font-medium hover:underline"
@@ -92,6 +95,29 @@ const Header = () => {
       </nav>
         )
       }
+      <button 
+      className={`block md:hidden ${!authStatus && "hidden"}`}
+      onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        {
+          !isSidebarOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          ) :(
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          )
+        }
+      </button>
+
+      {
+        isSidebarOpen && (
+          <Sidebar userName = {userName} handleLogout={handleLogout}/>
+        )
+      }
+
     </header>
   );
 };

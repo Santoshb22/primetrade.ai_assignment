@@ -101,7 +101,7 @@ const Auth = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-white via-blue-200 to-white p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-center mb-6">
+        <h2 className="sm:text-2xl font-bold text-center mb-2 sm:mb-6">
           {isLogin ? "Login to Your Account" : "Create an Account"}
         </h2>
 
@@ -117,7 +117,7 @@ const Auth = () => {
                   onChange={handleChange}
                   className="w-full p-3 border rounded-lg"
                 />
-                {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
+                {errors.name && <p className="text-red-800 text-xs sm:text-sm">{errors.name}</p>}
               </div>
 
               <div>
@@ -129,7 +129,7 @@ const Auth = () => {
                   onChange={handleChange}
                   className="w-full p-3 border rounded-lg"
                 />
-                {errors.username && <p className="text-red-600 text-sm">{errors.username}</p>}
+                {errors.username && <p className="text-red-800 text-xs sm:text-sm">{errors.username}</p>}
               </div>
 
               <div>
@@ -141,7 +141,7 @@ const Auth = () => {
                   onChange={handleChange}
                   className="w-full p-3 border rounded-lg"
                 />
-                {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
+                {errors.email && <p className="text-red-800 text-xs sm:text-sm">{errors.email}</p>}
               </div>
 
               <div>
@@ -152,7 +152,7 @@ const Auth = () => {
                   onChange={handleChange}
                   className="w-full p-2 border rounded-lg cursor-pointer"
                 />
-                {errors.avatar && <p className="text-red-600 text-sm">{errors.avatar}</p>}
+                {errors.avatar && <p className="text-red-800 text-xs sm:text-sm">{errors.avatar}</p>}
               </div>
             </>
           )}
@@ -167,7 +167,7 @@ const Auth = () => {
                 onChange={handleChange}
                 className="w-full p-3 border rounded-lg"
               />
-              {errors.username && <p className="text-red-600 text-sm">{errors.username}</p>}
+              {errors.username && <p className="text-red-800 text-xs sm:text-sm">{errors.username}</p>}
             </div>
           )}
 
@@ -180,7 +180,7 @@ const Auth = () => {
               onChange={handleChange}
               className="w-full p-3 border rounded-lg"
             />
-            {errors.password && <p className="text-red-600 text-sm">{errors.password}</p>}
+            {errors.password && <p className="text-red-800 text-xs sm:text-sm">{errors.password}</p>}
           </div>  
           <button
             type="submit"
@@ -190,7 +190,7 @@ const Auth = () => {
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-4">
+        <p className="text-center text-gray-600 mt-2 sm:mt-4">
           {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
           <button
             onClick={() => setIsLogin(!isLogin)}

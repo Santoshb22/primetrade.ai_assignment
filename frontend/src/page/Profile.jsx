@@ -132,7 +132,7 @@ const Profile = () => {
         <div className="relative border-2 px-4 py-12 bg-white rounded-xl shadow-2xl shadow-gray-700/60 hover:scale-105 transition-transform duration-300 flex flex-col items-center justify-center mt-10">
           <button
             onClick={() => setIsEditProfile(true)}
-            className='absolute top-4 right-4 px-4 py-2 bg-indigo-900 text-white rounded hover:bg-indigo-800'
+            className='absolute top-1 md:top-4 right-1 md:right-4 px-4 py-2 bg-indigo-900 text-white rounded-md hover:bg-indigo-800'
           >
             Edit Profile
           </button>
