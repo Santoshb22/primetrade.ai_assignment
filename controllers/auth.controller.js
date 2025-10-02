@@ -215,4 +215,53 @@ const editAvatar = async (req, res) => {
   }
 }
 
-module.exports = { register, login, logout, generateNewRefreshToken, editAvatar };
+const editProfile = async (req, res) => {
+  try {
+    const { name, username, email } = req.body;
+
+    if ([name, username, email].some(field => !field || field.trim() === "")) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    console.log(req.body);
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const existingUser = await User.findOne({
+      $or: [{ email }, { username }],
+      _id: { $ne: req.user?._id }
+    });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email or username already in use" });
+    }
+
+    user.name = name;
+    user.username = username;
+    user.email = email;
+    await user.save();
+
+    const updatedUser = await User.findById(req.user?._id).select("-password -refreshToken");
+    console.log(updatedUser);
+    return res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).json({ message: "Server error during profile update" });
+  }
+};
+
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user?._id).select("-password -refreshToken");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    } 
+    return res.status(200).json({ user });
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    return res.status(500).json({ message: "Server error during fetching profile" });
+  }
+};
+
+module.exports = { register, login, logout, generateNewRefreshToken, editAvatar, editProfile, getProfile };
