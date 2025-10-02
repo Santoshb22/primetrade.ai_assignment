@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const userRoutes = require('./routes/user.route');
 const taskRoutes = require('./routes/task.route');
+const cors = require('cors');
+
+app.use(cors({ origin: process.env.CORS_LINK, Credential: true }))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
